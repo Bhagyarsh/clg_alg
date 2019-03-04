@@ -19,42 +19,48 @@ def find_probablity(data,col_name=None,col_ind=None):
     sam = 0
     p_y = 0
     p_x = 0
+    cp_y = 0
+    cp_x = 0
     for index,values in enumerate(data):
-        if index is not 0 and col_name is None:
-            if f"{values[4]}" == "yes":
+        if index is not 0 :
+            if values[4] == "yes":
                 sam+=1
                 p_y+=1
             else :
-                sam+=1
                 p_x+=1
-        else :
-            if index is not 0 and col_name == values[col_ind]:
-                if f"{values[4]}" == "yes":
-
-                    sam+=1
-                    p_y+=1
+                sam+=1
+    if col_name:
+        for index,values in enumerate(data):
+            if index is not 0 :
+                # print(values[col_ind],col_name,values[4]) 
+                if values[4] == "yes" and values[col_ind] == col_name:
+                    
+                    cp_y+=1
                 else :
-                    sam+=1
-                    p_x+=1
+                    if values[4] == "no" and values[col_ind] == col_name:
+                        # print(values[col_ind])
+                        cp_x+=1
 
     if col_name:
-        print(f"Probablity for {data[0][col_ind]}={col_name} yes:{p_y} no:{p_x}" )
-    return (p_y/sam,p_x/sam,col_name,sam)
-
+        print(cp_y,cp_x,p_y,p_x)
+        print(f"Probablity for {data[0][col_ind]}={col_name} yes:{cp_y/p_y} no:{cp_x/p_x}" )    
+        return (cp_y/p_y,cp_x/p_x,col_name)
+    return (p_y/sam,p_x/sam,col_name)
 
 def print_data(data):
     for index,values in enumerate(data):
         print(f"{index} {values}")
-    py ,pn , _ ,sam = find_probablity(data)
+    py ,pn , _  = find_probablity(data)
     print(f"total Probablity of  buy computer {py}")
     print(f"total Probablity of  buy computer {pn}")
 
 def predict_yes_no(age,income,student,c_rating):
-    py_age ,pn_age , _ ,sam = find_probablity(data,age,0)
-    py_income ,pn_income , _ ,sam = find_probablity(data,income,1)
-    py_student ,pn_student , _ ,sam = find_probablity(data,student,2)
-    py_c_rating ,pn_c_rating , _ ,sam = find_probablity(data,c_rating,3)
-    py,pn =py_age*py_income*py_student*py_c_rating , pn_age*pn_income*pn_student*pn_c_rating
+    py_d , px_d, _ = find_probablity(data)
+    py_age ,pn_age , _  = find_probablity(data,age,0)
+    py_income ,pn_income , _  = find_probablity(data,income,1)
+    py_student ,pn_student , _  = find_probablity(data,student,2)
+    py_c_rating ,pn_c_rating , _  = find_probablity(data,c_rating,3)
+    py,pn =py_age*py_income*py_student*py_c_rating*py_d , pn_age*pn_income*pn_student*pn_c_rating*px_d
     buy = None
     if py > pn:
         buy = True
@@ -63,4 +69,10 @@ def predict_yes_no(age,income,student,c_rating):
 
     return py,pn,buy
 print_data(data)
-print(predict_yes_no("middle_aged","medium","yes","excellent"))
+print(predict_yes_no("youth","medium","yes","fair"))
+py,pn,buy = predict_yes_no("youth","medium","yes","fair")
+
+if buy:
+    print("navie bayeian predicts person buys computer")
+else:
+    print("navie bayeian predicts person will not buys computer")
